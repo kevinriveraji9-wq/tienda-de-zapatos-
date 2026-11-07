@@ -1177,152 +1177,158 @@ svg.claro { filter: drop-shadow(0 0 0.8px oklch(0.2 0 0 / 0.55)) drop-shadow(0 0
 }
 
 /* =========================================================
-   Vitrina de la portada (teléfono y tableta)
-   Un zapato destacado por categoría, con nombre y precio; se turna cada 4 s.
+   Portada única (computador, tableta y teléfono)
+   Escenario vino de borde a borde: título blanco, etiquetas, botones claros,
+   vitrina con un zapato destacado por categoría y las categorías debajo.
+   Computador: texto | vitrina, categorías en fila. Tableta y teléfono: apilado.
    ========================================================= */
-.vitrina { display: none; }
-@media (max-width: 1099px) {
-  .vitrina {
-    display: block;
-    position: relative;
-    isolation: isolate;
-    margin: 0 18px 4px 0;
-  }
-  /* el mismo bloque vino del mosaico, desplazado detrás */
-  .vitrina::before {
-    content: "";
-    position: absolute;
-    inset: 18px -18px -18px 18px;
-    z-index: -1;
-    background: var(--acento);
-  }
-  .vitrina__marco {
-    position: relative;
-    aspect-ratio: 16 / 10;
-    background: var(--gris);
-    overflow: hidden;
-  }
-  .vitrina__slide {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    grid-template-rows: auto 1fr auto;
-    padding: 14px 16px 16px;
-    border: 0;
-    background: transparent;
-    color: var(--tinta);
-    text-align: left;
-    cursor: pointer;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.35s, visibility 0s 0.35s;
-  }
-  .vitrina__slide.activa { opacity: 1; visibility: visible; transition: opacity 0.35s, visibility 0s; }
-  .vitrina__slide:focus-visible { outline-offset: -4px; }
-  .vitrina__cat {
-    justify-self: start;
-    padding: 4px 8px;
-    background: var(--tinta);
-    color: var(--blanco);
-    font-size: 0.8125rem;
-    font-weight: 700;
-  }
-  .vitrina__zapato { display: grid; place-items: center; min-height: 0; }
-  .vitrina__zapato svg { width: min(82%, 420px); height: auto; max-height: 100%; }
-  .vitrina__etiqueta {
-    justify-self: start;
-    display: grid;
-    padding: 8px 12px;
-    background: var(--blanco);
-    line-height: 1.25;
-  }
-  .vitrina__etiqueta b { font-weight: 700; }
-  .vitrina__etiqueta span { font-weight: 800; font-stretch: 87.5%; }
-  .vitrina__slide:hover .vitrina__etiqueta b { text-decoration: underline; text-underline-offset: 3px; }
-  .vitrina__puntos {
-    position: absolute;
-    right: 8px;
-    bottom: 10px;
-    display: flex;
-  }
-  .vitrina__punto {
-    display: grid;
-    place-items: center;
-    width: 32px;
-    height: 44px;
-    border: 0;
-    background: transparent;
-    cursor: pointer;
-  }
-  .vitrina__punto::before {
-    content: "";
-    width: 10px;
-    height: 10px;
-    background: oklch(0.2 0 0 / 0.25);
-    transition: background-color 0.2s, transform 0.3s var(--expo);
-  }
-  .vitrina__punto[aria-pressed="true"]::before { background: var(--tinta); transform: scale(1.3); }
-  .portada__texto { margin-top: 12px; }
+.portada {
+  grid-template-areas: "texto vitrina" "cats cats";
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  align-items: center;
+  gap: clamp(32px, 4vw, 56px) clamp(32px, 5vw, 80px);
+  background: var(--acento);
+  color: var(--blanco);
 }
-@media (min-width: 760px) and (max-width: 1099px) {
-  .vitrina__marco { aspect-ratio: 21 / 9; }
+.portada :focus-visible { outline-color: var(--blanco); }
+.portada__texto { grid-area: texto; }
+.vitrina { grid-area: vitrina; }
+.portada__cats { grid-area: cats; }
+.portada__frase { color: oklch(1 0 0 / 0.88); }
+
+/* etiquetas cortas con los datos del catálogo */
+.portada__resumen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
 }
-@media (prefers-reduced-motion: no-preference) {
-  .anima .vitrina { animation: aparecer 0.8s var(--expo) 0.1s both; }
-  .anima .vitrina::before { animation: barrido 1s var(--expo) 0.25s both; }
-}
-@media (max-width: 1099px) {
-  /* el zapato ocupa todo el marco; categoría y etiqueta flotan encima */
-  .vitrina__slide { display: block; padding: 0; }
-  .vitrina__zapato { position: absolute; inset: 8% 4% 16%; }
-  .vitrina__zapato svg { width: 100%; height: 100%; max-height: none; }
-  .vitrina__cat { position: absolute; top: 14px; left: 16px; }
-  .vitrina__etiqueta { position: absolute; left: 16px; bottom: 16px; max-width: calc(100% - 150px); }
+.portada__resumen li {
+  padding: 6px 10px;
+  border: 1px solid oklch(1 0 0 / 0.55);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
-/* =========================================================
-   Portada en el teléfono: escenario vino de borde a borde
-   vitrina arriba, título blanco compacto, datos en etiquetas,
-   botones claros y categorías en una fila deslizable.
-   ========================================================= */
-.portada__resumen { display: none; }
+/* botones claros sobre el vino */
+.portada .boton { background: var(--blanco); border-color: var(--blanco); color: var(--tinta); }
+.portada .boton:hover { background: var(--gris); border-color: var(--gris); }
+.portada .boton--claro { background: transparent; border-color: var(--blanco); color: var(--blanco); }
+.portada .boton--claro:hover { background: var(--blanco); color: var(--tinta); }
+
+/* categorías debajo: cuatro en fila (en el teléfono, fila deslizable) */
+.portada__subtitulo { color: var(--blanco); margin-bottom: 12px; }
+.portada__cats::before { display: none; }
+.mosaico { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.mosaico__tile { color: var(--tinta); }
+.mosaico__foto { aspect-ratio: 4 / 3; }
+
+/* ---------- Vitrina ---------- */
+.vitrina { position: relative; isolation: isolate; margin: 0 18px 18px 0; }
+.vitrina::before {
+  content: "";
+  position: absolute;
+  inset: 18px -18px -18px 18px;
+  z-index: -1;
+  background: var(--tinta);
+}
+.vitrina__marco {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: var(--gris);
+  overflow: hidden;
+}
+.vitrina__slide {
+  position: absolute;
+  inset: 0;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--tinta);
+  text-align: left;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s, visibility 0s 0.35s;
+}
+.vitrina__slide.activa { opacity: 1; visibility: visible; transition: opacity 0.35s, visibility 0s; }
+.vitrina__slide:focus-visible { outline: 3px solid var(--tinta); outline-offset: -6px; }
+.vitrina__zapato { position: absolute; inset: 12% 6% 28%; display: grid; place-items: center; }
+.vitrina__zapato svg { width: 100%; height: 100%; }
+.vitrina__cat {
+  position: absolute;
+  top: clamp(14px, 2vw, 22px);
+  left: clamp(16px, 2vw, 24px);
+  padding: 4px 8px;
+  background: var(--tinta);
+  color: var(--blanco);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+.vitrina__etiqueta {
+  position: absolute;
+  left: clamp(16px, 2vw, 24px);
+  bottom: clamp(16px, 2vw, 24px);
+  display: grid;
+  max-width: calc(100% - 160px);
+  padding: 10px 14px;
+  background: var(--blanco);
+  line-height: 1.25;
+}
+.vitrina__etiqueta b { font-weight: 700; font-size: clamp(1rem, 0.9rem + 0.4vw, 1.25rem); }
+.vitrina__etiqueta span { font-weight: 800; font-stretch: 87.5%; font-size: clamp(1rem, 0.9rem + 0.4vw, 1.25rem); }
+.vitrina__slide:hover .vitrina__etiqueta b { text-decoration: underline; text-underline-offset: 3px; }
+.vitrina__puntos { position: absolute; right: 8px; bottom: 10px; display: flex; }
+.vitrina__punto {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.vitrina__punto::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  background: oklch(0.2 0 0 / 0.25);
+  transition: background-color 0.2s, transform 0.3s var(--expo);
+}
+.vitrina__punto[aria-pressed="true"]::before { background: var(--tinta); transform: scale(1.3); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .anima .vitrina { animation: aparecer 0.8s var(--expo) 0.15s both; }
+  .anima .vitrina::before { animation: barrido 1s var(--expo) 0.3s both; }
+  .anima .portada__resumen li { animation: aparecer 0.6s var(--expo) both; }
+  .anima .portada__resumen li:nth-child(1) { animation-delay: 0.35s; }
+  .anima .portada__resumen li:nth-child(2) { animation-delay: 0.42s; }
+  .anima .portada__resumen li:nth-child(3) { animation-delay: 0.49s; }
+}
+
+/* ---------- Tableta: apilado, vitrina ancha ---------- */
+@media (max-width: 1099px) {
+  .portada { grid-template-areas: "vitrina" "texto" "cats"; grid-template-columns: minmax(0, 1fr); }
+  .vitrina__marco { aspect-ratio: 21 / 9; }
+  .vitrina__zapato { inset: 10% 8% 22%; }
+}
+
+/* ---------- Teléfono ---------- */
 @media (max-width: 759px) {
-  .portada {
-    gap: 22px;
-    padding: 18px 16px 30px;
-    background: var(--acento);
-    color: var(--blanco);
-  }
-  .portada :focus-visible { outline-color: var(--blanco); }
-  .vitrina { margin: 0 14px 0 0; }
-  .vitrina::before { inset: 14px -14px -14px 14px; background: var(--tinta); }
-  .portada__texto { margin-top: 10px; }
+  .portada { gap: 22px; padding: 18px 16px 30px; }
+  .vitrina { margin: 0 14px 14px 0; }
+  .vitrina::before { inset: 14px -14px -14px 14px; }
+  .vitrina__marco { aspect-ratio: 4 / 3; }
+  .vitrina__zapato { inset: 14% 6% 34%; }
+  .vitrina__etiqueta { max-width: calc(100% - 150px); padding: 8px 12px; }
   .portada__titulo { font-size: clamp(2.5rem, 11.5vw, 3.25rem); }
   .portada__frase { display: none; }
-  .portada__resumen {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 16px 0 0;
-    padding: 0;
-    list-style: none;
-  }
-  .portada__resumen li {
-    padding: 6px 10px;
-    border: 1px solid oklch(1 0 0 / 0.55);
-    font-size: 0.875rem;
-    font-weight: 700;
-    line-height: 1.2;
-  }
+  .portada__resumen { margin-top: 16px; }
   .portada__acciones { margin-top: 22px; gap: 10px; }
-  .portada .boton { background: var(--blanco); border-color: var(--blanco); color: var(--tinta); }
-  .portada .boton:hover { background: var(--gris); border-color: var(--gris); }
-  .portada .boton--claro { background: transparent; border-color: var(--blanco); color: var(--blanco); }
-  .portada .boton--claro:hover { background: var(--blanco); color: var(--tinta); }
-
-  /* categorías: fila deslizable con tarjetas compactas */
-  .portada__subtitulo { color: var(--blanco); margin-bottom: 12px; }
-  .portada__cats::before { display: none; }
   .mosaico {
     grid-template-columns: none;
     grid-auto-flow: column;
@@ -1336,18 +1342,6 @@ svg.claro { filter: drop-shadow(0 0 0.8px oklch(0.2 0 0 / 0.55)) drop-shadow(0 0
   }
   .mosaico::-webkit-scrollbar { display: none; }
   .mosaico li { scroll-snap-align: start; }
-  .mosaico__tile { color: var(--tinta); padding: 10px 12px 12px; }
-  .mosaico__foto { aspect-ratio: 4 / 3; }
+  .mosaico__tile { padding: 10px 12px 12px; }
   .mosaico__nombre { font-size: 1.0625rem; margin-top: 4px; }
-}
-@media (max-width: 759px) and (prefers-reduced-motion: no-preference) {
-  .anima .portada__resumen li { animation: aparecer 0.6s var(--expo) both; }
-  .anima .portada__resumen li:nth-child(1) { animation-delay: 0.35s; }
-  .anima .portada__resumen li:nth-child(2) { animation-delay: 0.42s; }
-  .anima .portada__resumen li:nth-child(3) { animation-delay: 0.49s; }
-}
-@media (max-width: 759px) {
-  /* el zapato queda por encima de la etiqueta de nombre y precio */
-  .vitrina__marco { aspect-ratio: 4 / 3; }
-  .vitrina__zapato { inset: 14% 6% 34%; }
 }
