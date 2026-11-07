@@ -939,7 +939,7 @@ p { text-wrap: pretty; }
   .ficha__relacionados { padding: 24px 16px; }
   .guia__cuerpo { padding: 16px; }
   .guia__tablas { grid-template-columns: minmax(0, 1fr); }
-  .migas [aria-current] { display: none; }
+  .migas [aria-current] { max-width: 40vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .modal__barra { padding-left: 16px; }
   .hoja-filtros { width: 100vw; }
   .hoja-filtros__cuerpo { padding: 0 16px 24px; }
@@ -957,16 +957,11 @@ p { text-wrap: pretty; }
 /* ---------- Pulido impeccable (crítica 29/40) ---------- */
 /* zapatos de color claro: contorno suave para que no se pierdan en el gris */
 svg.claro { filter: drop-shadow(0 0 0.8px oklch(0.2 0 0 / 0.55)) drop-shadow(0 0 0.4px oklch(0.2 0 0 / 0.4)); }
-/* categorías dentro de las pastillas solo cuando no hay barra lateral */
+/* categorías en las pastillas del catálogo: iguales en todos los dispositivos */
 .pildora--cat { font-stretch: 87.5%; text-transform: uppercase; }
 .pildora--cat[aria-pressed="true"] + .pildora:not(.pildora--cat) { margin-left: 0; }
-@media (min-width: 1100px) { .pildora--cat { display: none; } }
 /* barra de avisos: aire arriba y abajo cuando el texto ocupa dos líneas */
 .aviso { padding-block: 6px; }
-/* teléfono: la cabecera fija ya tiene WhatsApp; se quitan el botón flotante y los íconos por tarjeta */
-@media (max-width: 759px) {
-  .wa-flota, .tarjeta__wa { display: none; }
-}
 
 /* ficha: confianza junto al botón de pedir, enlaces de ayuda y aviso de enlace copiado */
 .ficha__confianza { margin-top: -4px; color: var(--tinta-suave); font-size: var(--paso-chico); }
@@ -1326,7 +1321,7 @@ svg.claro { filter: drop-shadow(0 0 0.8px oklch(0.2 0 0 / 0.55)) drop-shadow(0 0
   .vitrina__zapato { inset: 14% 6% 34%; }
   .vitrina__etiqueta { max-width: calc(100% - 150px); padding: 8px 12px; }
   .portada__titulo { font-size: clamp(2.5rem, 11.5vw, 3.25rem); }
-  .portada__frase { display: none; }
+  .portada__frase { font-size: 1rem; margin-top: 14px; }
   .portada__resumen { margin-top: 16px; }
   .portada__acciones { margin-top: 22px; gap: 10px; }
   .mosaico {
@@ -1345,3 +1340,17 @@ svg.claro { filter: drop-shadow(0 0 0.8px oklch(0.2 0 0 / 0.55)) drop-shadow(0 0
   .mosaico__tile { padding: 10px 12px 12px; }
   .mosaico__nombre { font-size: 1.0625rem; margin-top: 4px; }
 }
+
+/* =========================================================
+   Misma versión en todos los dispositivos: el contenido y las funciones
+   son iguales; solo cambia cómo se acomodan. En el teléfono el botón
+   flotante de WhatsApp es un poco más pequeño y deja aire al final.
+   ========================================================= */
+@media (max-width: 759px) {
+  .wa-flota__boton { width: 52px; height: 52px; }
+  .wa-flota__boton svg { width: 26px; height: 26px; }
+  .pie__legal { padding-right: 80px; }
+}
+
+/* separa el grupo de categorías del grupo de tipos en la fila del catálogo */
+.pildora--cat + .pildora:not(.pildora--cat) { margin-left: 14px; }
