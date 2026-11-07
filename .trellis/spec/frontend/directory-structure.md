@@ -3,8 +3,6 @@
 ```
 index.html              # the whole page (one file, semantic regions + dialogs)
 css/estilos.css         # all styles; tokens on :root; breakpoints 1100px and 760px
-css/tema-dorado.css     # colour theme for dorado.html (black / gold / white)
-dorado.html             # same page as index.html + tema-dorado.css
 js/productos.js         # DATA ONLY: TIENDA config, CATEGORIAS, PRODUCTOS (80 items)
 js/app.js               # behaviour: render, filters, dialogs, drawer, WhatsApp, order form (one IIFE)
 img/<categoria>/        # (future) real product photos, e.g. img/dama/D01.jpg

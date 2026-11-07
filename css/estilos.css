@@ -364,7 +364,7 @@ p { text-wrap: pretty; }
   gap: 40px;
   align-items: start;
 }
-.catalogo__nota { margin-top: 40px; color: var(--tinta-suave); font-size: var(--paso-chico); max-width: 70ch; }
+.catalogo__nota { margin: 0 0 20px; color: var(--tinta-suave); font-size: var(--paso-chico); max-width: 70ch; }
 
 /* Filtros (barra lateral y hoja) */
 .filtros {
@@ -952,4 +952,226 @@ p { text-wrap: pretty; }
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ---------- Pulido impeccable (crítica 29/40) ---------- */
+/* zapatos de color claro: contorno suave para que no se pierdan en el gris */
+svg.claro { filter: drop-shadow(0 0 0.8px oklch(0.2 0 0 / 0.55)) drop-shadow(0 0 0.4px oklch(0.2 0 0 / 0.4)); }
+/* categorías dentro de las pastillas solo cuando no hay barra lateral */
+.pildora--cat { font-stretch: 87.5%; text-transform: uppercase; }
+.pildora--cat[aria-pressed="true"] + .pildora:not(.pildora--cat) { margin-left: 0; }
+@media (min-width: 1100px) { .pildora--cat { display: none; } }
+/* barra de avisos: aire arriba y abajo cuando el texto ocupa dos líneas */
+.aviso { padding-block: 6px; }
+/* teléfono: la cabecera fija ya tiene WhatsApp; se quitan el botón flotante y los íconos por tarjeta */
+@media (max-width: 759px) {
+  .wa-flota, .tarjeta__wa { display: none; }
+}
+
+/* ficha: confianza junto al botón de pedir, enlaces de ayuda y aviso de enlace copiado */
+.ficha__confianza { margin-top: -4px; color: var(--tinta-suave); font-size: var(--paso-chico); }
+.ficha__enlaces { display: flex; flex-wrap: wrap; column-gap: 20px; }
+.ficha__copiado { font-size: var(--paso-chico); font-weight: 600; overflow-wrap: anywhere; }
+.ficha__copiado:empty { display: none; }
+
+/* =========================================================
+   Más diseño y movimiento (tarea 11-07-diseno-animaciones)
+   Firma: la portada entra por líneas y los zapatos "caminan" a su ficha.
+   Todo lo que se mueve tiene alternativa quieta con prefers-reduced-motion.
+   ========================================================= */
+:root {
+  --expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ---------- Botones: respuesta al tocar y flecha que avanza ---------- */
+.boton { transition: background-color 0.2s, border-color 0.2s, color 0.2s, transform 0.15s var(--expo); }
+.boton:active { transform: scale(0.97); }
+.boton--flecha svg { width: 20px; height: 20px; transition: transform 0.3s var(--expo); }
+.boton--flecha:hover svg { transform: translateX(5px); }
+
+/* ---------- Cabecera: sombra leve solo cuando ya se bajó ---------- */
+.cabecera { transition: box-shadow 0.3s; }
+.cabecera.con-sombra { box-shadow: 0 10px 24px -18px oklch(0 0 0 / 0.45); } /* la cabecera fija flota sobre el contenido */
+
+/* ---------- Portada: líneas que suben, texto y mosaico escalonados ---------- */
+.portada__titulo .linea { display: block; overflow: hidden; padding-bottom: 0.04em; }
+.portada__titulo .linea > span { display: inline-block; }
+.portada { position: relative; isolation: isolate; }
+/* bloque de acento detrás del mosaico: le da peso a la mitad derecha sin usar fotos */
+.portada__cats { position: relative; }
+.portada__cats::before {
+  content: "";
+  position: absolute;
+  inset: 34px -24px -24px 34px;
+  z-index: -1;
+  background: var(--acento);
+}
+.mosaico__tile { position: relative; overflow: hidden; }
+.mosaico__tile::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 4px;
+  background: var(--tinta);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s var(--expo);
+}
+.mosaico__tile:hover::after, .mosaico__tile:focus-visible::after { transform: scaleX(1); }
+.mosaico__nombre { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.mosaico__nombre::after {
+  content: "→";
+  font-weight: 400;
+  transform: translateX(-6px);
+  opacity: 0;
+  transition: transform 0.3s var(--expo), opacity 0.3s;
+}
+.mosaico__tile:hover .mosaico__nombre::after, .mosaico__tile:focus-visible .mosaico__nombre::after { transform: none; opacity: 1; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .anima .portada__titulo .linea > span { animation: subir-linea 0.9s var(--expo) both; animation-delay: calc(var(--n, 0) * 110ms + 80ms); }
+  .anima .portada__frase { animation: aparecer 0.8s var(--expo) 0.35s both; }
+  .anima .portada__acciones { animation: aparecer 0.8s var(--expo) 0.45s both; }
+  .anima .portada__subtitulo { animation: fundido 0.6s 0.4s both; }
+  .anima .portada__cats::before { animation: barrido 1s var(--expo) 0.2s both; }
+  .anima .mosaico li { animation: aparecer 0.7s var(--expo) both; }
+  .anima .mosaico li:nth-child(1) { animation-delay: 0.45s; }
+  .anima .mosaico li:nth-child(2) { animation-delay: 0.53s; }
+  .anima .mosaico li:nth-child(3) { animation-delay: 0.61s; }
+  .anima .mosaico li:nth-child(4) { animation-delay: 0.69s; }
+  /* los zapatos "caminan" hasta su lugar */
+  .anima .mosaico__foto svg { animation: pisar 0.9s var(--expo) both; }
+  .anima .mosaico li:nth-child(1) .mosaico__foto svg { animation-delay: 0.6s; }
+  .anima .mosaico li:nth-child(2) .mosaico__foto svg { animation-delay: 0.68s; }
+  .anima .mosaico li:nth-child(3) .mosaico__foto svg { animation-delay: 0.76s; }
+  .anima .mosaico li:nth-child(4) .mosaico__foto svg { animation-delay: 0.84s; }
+}
+@keyframes subir-linea { from { transform: translateY(105%); } }
+@keyframes pisar { from { opacity: 0; transform: translateX(-40px) rotate(-10deg); } 60% { transform: translateX(4px) rotate(2deg); } }
+@keyframes barrido { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+
+/* ---------- Cinta en movimiento ---------- */
+.cinta {
+  overflow: hidden;
+  background: var(--tinta);
+  color: var(--blanco);
+}
+.cinta__pista { display: flex; width: max-content; }
+.cinta__pista span {
+  display: inline-flex;
+  align-items: center;
+  gap: 28px;
+  padding: 14px 0 14px 28px;
+  font-size: 1.125rem;
+  font-weight: 800;
+  font-stretch: 75%;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.cinta__pista span::after { content: ""; width: 8px; height: 8px; background: var(--acento); }
+@media (prefers-reduced-motion: no-preference) {
+  .cinta__pista { animation: cinta 38s linear infinite; }
+  .cinta:hover .cinta__pista { animation-play-state: paused; }
+}
+@keyframes cinta { to { transform: translateX(-50%); } }
+
+/* ---------- Servicios con ícono ---------- */
+.servicios__lista li { display: grid; grid-template-columns: 32px 1fr; column-gap: 14px; align-items: start; }
+.servicios__icono { grid-row: span 2; width: 30px; height: 30px; color: var(--acento); }
+
+/* ---------- Lo nuevo: carrusel ---------- */
+.nuevos { padding: clamp(40px, 5vw, 72px) 0 8px; }
+.nuevos__cabeza {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 8px 24px;
+  padding: 0 var(--borde);
+  margin-bottom: 20px;
+}
+.nuevos__cabeza .seccion__titulo { margin-bottom: 0; }
+.nuevos__acciones { display: flex; align-items: center; gap: 8px; }
+.riel__flecha { border: 1px solid var(--tinta); transition: background-color 0.2s, color 0.2s, opacity 0.2s; }
+.riel__flecha:hover:not(:disabled) { background: var(--tinta); color: var(--blanco); }
+.riel__flecha:disabled { opacity: 0.3; cursor: default; }
+.riel {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(220px, calc((100% - 2 * var(--borde) - 48px) / 4.3));
+  gap: 16px;
+  margin: 0;
+  padding: 4px var(--borde) 24px;
+  list-style: none;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--borde);
+  scrollbar-width: thin;
+}
+.riel > li { scroll-snap-align: start; }
+.riel:focus-visible { outline-offset: -3px; }
+
+/* ---------- Tarjetas: segundo color al pasar el mouse y entrada escalonada ---------- */
+.tarjeta__foto > svg, .tarjeta__alt { transition: opacity 0.35s, transform 0.45s var(--expo); }
+.tarjeta__alt {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  pointer-events: none;
+}
+.tarjeta__alt svg { width: 84%; }
+@media (hover: hover) {
+  .tarjeta:hover .tarjeta__foto:has(.tarjeta__alt) > svg { opacity: 0; }
+  .tarjeta:hover .tarjeta__alt { opacity: 1; transform: translateY(-8px) scale(1.03); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .anima .tarjeta--entra { animation: aparecer 0.5s var(--expo) both; animation-delay: calc(var(--i, 0) * 40ms); }
+}
+
+/* ---------- Ficha: la talla elegida responde ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .tallas--ficha .talla[aria-pressed="true"] { animation: pulso 0.28s var(--expo); }
+  .ficha__aviso:not(:empty) { animation: sacudir 0.4s; }
+}
+@keyframes pulso { 40% { transform: scale(1.08); } }
+@keyframes sacudir { 20%, 60% { transform: translateX(-4px); } 40%, 80% { transform: translateX(4px); } }
+
+/* ---------- Pedido rápido: banda en el color de acento ---------- */
+.pedido { background: var(--acento); color: var(--blanco); }
+.pedido :focus-visible { outline-color: var(--blanco); }
+.pedido .campo label, .pedido .campo__opcional { color: var(--blanco); }
+.pedido .campo input { border-color: transparent; }
+.pedido .campo input:hover, .pedido .campo input:focus-visible { border-color: var(--tinta); }
+.pedido .pedido__error { padding: 8px 12px; background: var(--blanco); color: var(--acento); }
+.pedido .pedido__enviar { background: var(--blanco); border-color: var(--blanco); color: var(--wa-hondo); }
+.pedido .pedido__enviar:hover { background: var(--gris); border-color: var(--gris); }
+
+/* ---------- Pie: el nombre de la tienda en grande ---------- */
+.pie__gigante {
+  margin: 0;
+  padding: clamp(32px, 5vw, 56px) var(--borde) 0;
+  font-size: clamp(3rem, 11.5vw, 10.5rem);
+  font-weight: 800;
+  font-stretch: 75%;
+  line-height: 0.85;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  color: var(--blanco);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* ---------- Teléfono ---------- */
+@media (max-width: 759px) {
+  .portada__cats::before { inset: 24px -8px -12px 24px; }
+  .riel { grid-auto-columns: 62%; }
+  .servicios__lista li { grid-template-columns: 28px 1fr; }
+  .cinta__pista span { font-size: 1rem; padding-block: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cinta__pista { animation: none !important; flex-wrap: wrap; width: auto; }
 }

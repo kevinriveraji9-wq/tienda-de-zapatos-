@@ -68,3 +68,24 @@ dorado.html: copia de la tienda con paleta negro, dorado y blanco mediante css/t
 ### Status
 
 [OK] **Completed**
+
+
+## Session 4: Más diseño y animaciones, versión blanca
+
+**Date**: 2026-11-07
+**Task**: Más diseño y animaciones, versión blanca
+**Branch**: `main`
+
+### Summary
+
+Se eliminó la versión dorada. Pulido de la crítica impeccable (29/40), más diseño (cinta, carrusel Lo nuevo, bloque vino, íconos, banda de pedido, nombre grande) y animaciones con seguro y movimiento reducido.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `f83d951` | (see git log) |
+
+### Status
+
+[OK] **Completed**

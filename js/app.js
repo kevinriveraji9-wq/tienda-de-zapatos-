@@ -47,7 +47,15 @@
   // decorativo: la imagen va junto al nombre del producto, así que no se repite en el lector de pantalla
   const dibujo = (p, decorativo = false, color = p.colores[0]) => p.imagen
     ? `<img src="${esc(p.imagen)}" alt="${decorativo ? "" : esc(p.nombre)}" loading="lazy">`
-    : `<svg viewBox="0 0 230 140" aria-hidden="true"><ellipse cx="116" cy="124" rx="92" ry="6" fill="#000" fill-opacity=".07"/>${SVGS[FORMA[p.tipo] || "bajo"](color)}</svg>`;
+    : `<svg viewBox="0 0 230 140" aria-hidden="true"${esClaro(color) ? ' class="claro"' : ""}><ellipse cx="116" cy="124" rx="92" ry="6" fill="#000" fill-opacity=".07"/>${SVGS[FORMA[p.tipo] || "bajo"](color)}</svg>`;
+
+  // los colores muy claros se pierden sobre el gris de la ficha: llevan contorno
+  function esClaro(hex) {
+    const m = /^#?([0-9a-f]{6})$/i.exec(hex || "");
+    if (!m) return false;
+    const n = parseInt(m[1], 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255;
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b > 205;
+  }
 
   /* ---------- Colores con nombre (un código desconocido se llama "Color N") ---------- */
   const COLOR_NOMBRES = {
@@ -99,6 +107,8 @@
     `- Precio: ${pesos(p.precio)}\n¿Está disponible?`;
   const msgOtraTalla = (p) =>
     `${SALUDO} Me gusta el modelo ${p.nombre} (Ref. ${p.id}), pero no encuentro mi talla. Mi talla es: `;
+  const msgFotos = (p) =>
+    `${SALUDO} ¿Me pueden enviar fotos reales del modelo ${p.nombre} (Ref. ${p.id})?`;
   const MENSAJES = {
     general: `${SALUDO} Quiero información sobre el catálogo.`,
     compra: `${SALUDO} Quiero comprar y me gustaría que me ayuden a elegir modelo y talla.`,
@@ -129,7 +139,7 @@
   };
 
   /* ---------- Estado ---------- */
-  const estado = { cat: "dama", tipo: "Todo", talla: null, precio: null, orden: "relevancia", q: "" };
+  const estado = { cat: "todas", tipo: "Todo", talla: null, precio: null, orden: "relevancia", q: "" };
   function leerHash(h) {
     if (CATEGORIAS.some((c) => c.id === h) || h === TODAS) { estado.cat = h; estado.tipo = "Todo"; return true; }
     if (h === "nuevos") { estado.cat = TODAS; estado.tipo = "Nuevos"; return true; }
@@ -138,8 +148,23 @@
   const hashInicial = leerHash(location.hash.slice(1));
 
   const buscando = () => estado.q.trim().length > 0;
+  // Palabras que la gente escribe y cómo se llaman en el catálogo
+  const SINONIMOS = {
+    colegio: "escolar", colegial: "escolar", colegiales: "escolar", escolares: "escolar", uniforme: "escolar",
+    tennis: "tenis", zapatilla: "tenis", zapatillas: "tenis", deportivo: "tenis", deportivos: "tenis",
+    chancla: "sandalia", chanclas: "sandalia", sandalias: "sandalia",
+    tacon: "tacon", tacones: "tacon", bailarina: "baleta", bailarinas: "baleta", baletas: "baleta",
+    botas: "bota", botines: "botin", mocasin: "mocasin", mocasines: "mocasin", elegante: "formal",
+    mujer: "dama", mujeres: "dama", senora: "dama", hombre: "caballero", hombres: "caballero",
+    ninos: "nino", ninas: "nina", bebes: "bebe",
+  };
+  const RELLENO = new Set(["zapato", "zapatos", "calzado", "para", "de", "del", "la", "el", "los", "las", "en", "con", "y", "un", "una", "unos", "unas"]);
   function base() {
-    const palabras = sinTildes(estado.q.trim()).split(/\s+/).filter(Boolean);
+    const palabras = sinTildes(estado.q.trim()).split(/\s+/)
+      .filter((w) => w && !RELLENO.has(w))
+      .map((w) => SINONIMOS[w] || w)
+      .map((w) => (w.length > 4 && w.endsWith("s") ? w.slice(0, -1) : w)); // plurales: "botas" encuentra "bota"
+    if (!palabras.length && estado.q.trim()) return PRODUCTOS;
     if (!palabras.length) return deCat(estado.cat);
     return PRODUCTOS.filter((p) => {
       const texto = sinTildes(`${p.nombre} ${p.tipo} ${p.id} ${nombreCat(p.categoria)}`);
@@ -195,8 +220,15 @@
   }).join("");
 
   const servicios = (TIENDA.servicios || []).filter((s) => s && s.titulo);
-  $("#servicios").innerHTML = servicios.map((s) =>
-    `<li><b>${esc(s.titulo)}</b><span>${esc(s.texto || "")}</span></li>`).join("");
+  const ICONOS_SERVICIO = ["iconoEnvio", "iconoCambio", "iconoPago", "iconoChat"];
+  $("#servicios").innerHTML = servicios.map((s, i) =>
+    `<li><svg class="servicios__icono" viewBox="0 0 24 24" aria-hidden="true"><use href="#${ICONOS_SERVICIO[i % 4]}"/></svg>
+      <b>${esc(s.titulo)}</b><span>${esc(s.texto || "")}</span></li>`).join("");
+
+  // Cinta: categorías, tipos y datos clave; se repite dos veces para que el bucle no tenga corte
+  const cintaItems = [...CATEGORIAS.map((c) => c.nombre), ...tiposDe(PRODUCTOS), `Tallas ${T_MIN} a ${T_MAX}`, "Pide por WhatsApp"];
+  const cintaHTML = cintaItems.map((t) => `<span>${esc(t)}</span>`).join("");
+  $("#cinta").innerHTML = reducido ? cintaHTML : cintaHTML + cintaHTML; // quieta: una sola vuelta
   if (!servicios.length) $(".servicios").hidden = true;
 
   const POLITICAS = [["envios", "Envíos"], ["cambios", "Cambios"], ["pagos", "Medios de pago"]];
@@ -220,6 +252,53 @@
   ].filter(Boolean).join("");
 
   pintarEnlacesWA();
+
+  /* ---------- Lo nuevo: carrusel con flechas (se desliza con el dedo en el teléfono) ---------- */
+  const riel = $("#riel");
+  const nuevos = PRODUCTOS.filter((p) => p.nuevo);
+  if (!nuevos.length) $(".nuevos").hidden = true;
+  riel.innerHTML = nuevos.map((p) => tarjeta(p, { mixto: true })).join("");
+  const flechas = $$("[data-riel]");
+  const estadoFlechas = () => {
+    flechas[0].disabled = riel.scrollLeft < 8;
+    flechas[1].disabled = riel.scrollLeft + riel.clientWidth > riel.scrollWidth - 8;
+  };
+  flechas.forEach((b) => b.addEventListener("click", () => {
+    riel.scrollBy({ left: Number(b.dataset.riel) * riel.clientWidth * 0.85, behavior: reducido ? "auto" : "smooth" });
+  }));
+  riel.addEventListener("scroll", estadoFlechas, { passive: true });
+  addEventListener("resize", estadoFlechas);
+  estadoFlechas();
+
+  /* ---------- Seguro de la entrada: si el navegador no la anima (pestaña en segundo plano, vista previa),
+     a los 2,5 s se completa y el contenido queda visible ---------- */
+  const ENTRADAS = new Set(["subir-linea", "aparecer", "fundido", "barrido", "pisar"]);
+  setTimeout(() => {
+    document.getAnimations?.().forEach((an) => {
+      if (ENTRADAS.has(an.animationName) && an.playState !== "finished") an.finish();
+    });
+  }, 2500);
+
+  /* ---------- Cabecera: una sombra leve cuando la página ya bajó ---------- */
+  const cab = $(".cabecera");
+  const marcarCabecera = () => cab.classList.toggle("con-sombra", scrollY > 8);
+  addEventListener("scroll", marcarCabecera, { passive: true });
+  marcarCabecera();
+
+  /* ---------- Revelado al bajar: solo secuencias (pasos, carrusel, servicios); lo ya visible no se esconde ---------- */
+  if (!reducido && "IntersectionObserver" in window) {
+    const io = new IntersectionObserver((entradas) => {
+      entradas.filter((e) => e.isIntersecting).forEach((e, n) => {
+        io.unobserve(e.target);
+        const an = e.target.animate([{ opacity: 0, transform: "translateY(24px)" }, { opacity: 1, transform: "none" }],
+          { duration: 600, delay: n * 90, easing: "cubic-bezier(0.16, 1, 0.3, 1)", fill: "backwards" });
+        setTimeout(() => { if (an.playState !== "finished") an.finish(); }, 600 + n * 90 + 800); // seguro
+      });
+    }, { rootMargin: "0px 0px -12% 0px" });
+    $$(".pasos li, .riel .tarjeta, .servicios__lista li").forEach((el) => {
+      if (el.getBoundingClientRect().top > innerHeight) io.observe(el);
+    });
+  }
 
   /* ---------- Barra de avisos: se turnan, con pausa; quietos si se reduce el movimiento ---------- */
   const avisos = (Array.isArray(TIENDA.anuncios) ? TIENDA.anuncios : [TIENDA.anuncio]).filter(Boolean).slice(0, 3);
@@ -308,12 +387,16 @@
     return h;
   }
 
-  function tarjeta(p, { mixto = false, mini = false } = {}) {
+  function tarjeta(p, { mixto = false, mini = false, i = null } = {}) {
     const nombres = nombresColores(p);
+    // al pasar el mouse se ve el segundo color del modelo
+    const alterno = !mini && !p.imagen && p.colores.length > 1
+      ? `<span class="tarjeta__alt">${dibujo(p, true, p.colores[1])}</span>` : "";
+    const entra = i !== null && !reducido ? ` tarjeta--entra" style="--i:${Math.min(i, 11)}` : "";
     const h = mini ? "h4" : "h3"; // en la ficha las mini tarjetas van bajo el h3 "También te puede gustar"
     return `
-      <li class="tarjeta${mini ? " tarjeta--mini" : ""}">
-        <div class="tarjeta__foto">${dibujo(p, true)}${sellos(p)}</div>
+      <li class="tarjeta${mini ? " tarjeta--mini" : ""}${entra}">
+        <div class="tarjeta__foto">${dibujo(p, true)}${alterno}${sellos(p)}</div>
         <div class="tarjeta__info">
           <${h} class="tarjeta__nombre"><button type="button" class="tarjeta__abrir" data-abrir="${p.id}">${esc(p.nombre)}</button></${h}>
           <p class="tarjeta__meta">${mixto ? `${nombreCat(p.categoria)} · ` : ""}${esc(p.tipo)} · ${plural(p.colores.length, "color", "colores")}</p>
@@ -357,14 +440,17 @@
     }
     vacio.hidden = true;
     vacio.innerHTML = "";
-    $("#rejilla").innerHTML = lista.map((p) => tarjeta(p, { mixto })).join("");
+    $("#rejilla").innerHTML = lista.map((p, i) => tarjeta(p, { mixto, i })).join("");
   }
 
   function pintarFiltros() {
     const filtros = htmlFiltros();
     $("#filtrosLado").innerHTML = filtros;
     $("#filtrosHoja").innerHTML = filtros;
-    $("#pildoras").innerHTML = opcionesTipo().map(([t]) =>
+    // en tableta y teléfono la categoría se cambia desde aquí (la barra lateral no se ve)
+    const cats = buscando() ? "" : [TODAS, ...CATEGORIAS.map((c) => c.id)].map((id) =>
+      `<button type="button" class="pildora pildora--cat" data-cat="${id}" aria-pressed="${id === estado.cat}">${id === TODAS ? "Todo" : nombreCat(id)}</button>`).join("");
+    $("#pildoras").innerHTML = cats + opcionesTipo().map(([t]) =>
       `<button type="button" class="pildora" data-tipo="${t}" aria-pressed="${t === estado.tipo}">${t}</button>`).join("");
   }
 
@@ -431,6 +517,9 @@
     const abrir = t.closest("[data-abrir]");
     if (abrir) return abrirFicha(abrir.dataset.abrir);
 
+    const comp = t.closest("[data-compartir]");
+    if (comp) return compartir(comp.dataset.compartir);
+
     const guia = t.closest("[data-guia]");
     if (guia) {
       if (guia.closest("#menuMovil")) $("#menuMovil").close();
@@ -459,7 +548,12 @@
   });
   $("#buscador").addEventListener("submit", (e) => { e.preventDefault(); llevarAlCatalogo(); });
 
-  addEventListener("hashchange", () => { if (leerHash(location.hash.slice(1))) { estado.q = ""; buscar.value = ""; pintar(); } });
+  const productoDelHash = () => PRODUCTOS.find((x) => x.id === location.hash.slice(1).toUpperCase());
+  addEventListener("hashchange", () => {
+    const p = productoDelHash();
+    if (p) return abrirFicha(p.id);
+    if (leerHash(location.hash.slice(1))) { estado.q = ""; buscar.value = ""; pintar(); }
+  });
 
   // Buscador plegable en el teléfono
   const cabecera = $(".cabecera");
@@ -591,7 +685,13 @@
 
           <a class="boton boton--wa ficha__pedir" id="fichaPedir" target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#iconoWa"/></svg>Pedir por WhatsApp</a>
-          <a class="enlace enlace--bloque" href="${linkWA(msgOtraTalla(p))}" target="_blank" rel="noopener">¿No encuentras tu talla? Escríbenos</a>
+          <p class="ficha__confianza">Antes de pagar te confirmamos talla, color y disponibilidad por chat.</p>
+          <div class="ficha__enlaces">
+            <a class="enlace enlace--bloque" href="${linkWA(msgOtraTalla(p))}" target="_blank" rel="noopener">¿No encuentras tu talla? Escríbenos</a>
+            ${p.imagen ? "" : `<a class="enlace enlace--bloque" href="${linkWA(msgFotos(p))}" target="_blank" rel="noopener">Pide fotos reales de este modelo</a>`}
+            <button type="button" class="enlace enlace--bloque" data-compartir="${p.id}">Compartir este modelo</button>
+          </div>
+          <p class="ficha__copiado" id="fichaCopiado" role="status"></p>
 
           ${servicios.length ? `<ul class="ficha__servicios">${servicios.map((s) => `<li><b>${esc(s.titulo)}.</b> ${esc(s.texto || "")}</li>`).join("")}</ul>` : ""}
 
@@ -623,6 +723,25 @@
       ficha.scrollTop = 0;
       $("#fichaNombre").focus();
     } else ficha.showModal();
+    history.replaceState(null, "", "#" + p.id); // cada modelo tiene su enlace (ej. #D01) para compartirlo
+  }
+  const hashCategoria = () => "#" + (estado.cat === TODAS && estado.tipo === "Nuevos" ? "nuevos" : estado.cat);
+  ficha.addEventListener("close", () => {
+    // el evento llega un instante después: si ya se abrió otro modelo, se deja su enlace
+    if (!ficha.open && PRODUCTOS.some((x) => "#" + x.id === location.hash)) history.replaceState(null, "", hashCategoria());
+  });
+  async function compartir(id) {
+    const p = PRODUCTOS.find((x) => x.id === id);
+    const url = `${location.origin}${location.pathname}#${id}`;
+    const aviso = $("#fichaCopiado");
+    try {
+      if (navigator.share) { await navigator.share({ title: p.nombre, text: `${p.nombre} · ${pesos(p.precio)}`, url }); return; }
+      await navigator.clipboard.writeText(url);
+      aviso.textContent = "Enlace copiado. Pégalo en WhatsApp para compartirlo.";
+    } catch (err) {
+      if (err?.name === "AbortError") return; // la persona cerró el menú de compartir
+      aviso.textContent = `Copia este enlace: ${url}`;
+    }
   }
 
   function actualizarPedido() {
@@ -641,7 +760,11 @@
     const { p } = sel;
     $$("[data-ficha-color]", ficha).forEach((b) => b.setAttribute("aria-pressed", String(Number(b.dataset.fichaColor) === i)));
     $("#fichaColor").textContent = nombreColor(p.colores[i], i);
-    if (!p.imagen) $("#fichaFoto svg").outerHTML = dibujo(p, false, p.colores[i]);
+    if (!p.imagen) {
+      $("#fichaFoto svg").outerHTML = dibujo(p, false, p.colores[i]);
+      if (!reducido) $("#fichaFoto svg").animate([{ opacity: 0, transform: "translateX(-12px)" }, { opacity: 1, transform: "none" }],
+        { duration: 320, easing: "cubic-bezier(0.16, 1, 0.3, 1)" });
+    }
     actualizarPedido();
   }
   // Sin talla no se arma el pedido: se pide elegirla primero
@@ -726,7 +849,7 @@
     }
     const talla = Number(f.get("talla"));
     if (!Number.isInteger(talla) || talla < 15 || talla > 46) {
-      error.textContent = "Escribe una talla entre 15 y 46.";
+      error.textContent = "Escribe tu talla en número entero, entre 15 y 46 (por ejemplo, 37).";
       error.hidden = false;
       $('[name="talla"]', formPedido).setAttribute("aria-invalid", "true");
       $('[name="talla"]', formPedido).focus();
@@ -742,4 +865,6 @@
   /* ---------- Arranque ---------- */
   pintar();
   if (hashInicial) requestAnimationFrame(() => $("#catalogo").scrollIntoView());
+  const pInicial = productoDelHash();
+  if (pInicial) requestAnimationFrame(() => { $("#catalogo").scrollIntoView(); abrirFicha(pInicial.id); });
 })();
