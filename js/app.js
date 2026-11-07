@@ -190,6 +190,8 @@
   const [T_MIN, T_MAX] = extremos(PRODUCTOS);
   $("#datoModelos").textContent = `${PRODUCTOS.length} modelos con precio`;
   $("#datoTallas").textContent = `de la talla ${T_MIN} a la ${T_MAX}`;
+  $("#portadaResumen").innerHTML = [`${PRODUCTOS.length} modelos`, `Tallas ${T_MIN} a ${T_MAX}`, "Pide por WhatsApp"]
+    .map((t) => `<li>${t}</li>`).join("");
   $("#anio").textContent = new Date().getFullYear();
   $("#pieCiudad").textContent = TIENDA.ciudad;
   $("#lnkFacebook").href = TIENDA.facebook;

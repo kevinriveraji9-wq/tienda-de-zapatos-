@@ -1279,3 +1279,75 @@ svg.claro { filter: drop-shadow(0 0 0.8px oklch(0.2 0 0 / 0.55)) drop-shadow(0 0
   .vitrina__cat { position: absolute; top: 14px; left: 16px; }
   .vitrina__etiqueta { position: absolute; left: 16px; bottom: 16px; max-width: calc(100% - 150px); }
 }
+
+/* =========================================================
+   Portada en el teléfono: escenario vino de borde a borde
+   vitrina arriba, título blanco compacto, datos en etiquetas,
+   botones claros y categorías en una fila deslizable.
+   ========================================================= */
+.portada__resumen { display: none; }
+@media (max-width: 759px) {
+  .portada {
+    gap: 22px;
+    padding: 18px 16px 30px;
+    background: var(--acento);
+    color: var(--blanco);
+  }
+  .portada :focus-visible { outline-color: var(--blanco); }
+  .vitrina { margin: 0 14px 0 0; }
+  .vitrina::before { inset: 14px -14px -14px 14px; background: var(--tinta); }
+  .portada__texto { margin-top: 10px; }
+  .portada__titulo { font-size: clamp(2.5rem, 11.5vw, 3.25rem); }
+  .portada__frase { display: none; }
+  .portada__resumen {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 16px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .portada__resumen li {
+    padding: 6px 10px;
+    border: 1px solid oklch(1 0 0 / 0.55);
+    font-size: 0.875rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .portada__acciones { margin-top: 22px; gap: 10px; }
+  .portada .boton { background: var(--blanco); border-color: var(--blanco); color: var(--tinta); }
+  .portada .boton:hover { background: var(--gris); border-color: var(--gris); }
+  .portada .boton--claro { background: transparent; border-color: var(--blanco); color: var(--blanco); }
+  .portada .boton--claro:hover { background: var(--blanco); color: var(--tinta); }
+
+  /* categorías: fila deslizable con tarjetas compactas */
+  .portada__subtitulo { color: var(--blanco); margin-bottom: 12px; }
+  .portada__cats::before { display: none; }
+  .mosaico {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 42%;
+    gap: 8px;
+    margin-right: -16px;
+    padding-right: 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .mosaico::-webkit-scrollbar { display: none; }
+  .mosaico li { scroll-snap-align: start; }
+  .mosaico__tile { color: var(--tinta); padding: 10px 12px 12px; }
+  .mosaico__foto { aspect-ratio: 4 / 3; }
+  .mosaico__nombre { font-size: 1.0625rem; margin-top: 4px; }
+}
+@media (max-width: 759px) and (prefers-reduced-motion: no-preference) {
+  .anima .portada__resumen li { animation: aparecer 0.6s var(--expo) both; }
+  .anima .portada__resumen li:nth-child(1) { animation-delay: 0.35s; }
+  .anima .portada__resumen li:nth-child(2) { animation-delay: 0.42s; }
+  .anima .portada__resumen li:nth-child(3) { animation-delay: 0.49s; }
+}
+@media (max-width: 759px) {
+  /* el zapato queda por encima de la etiqueta de nombre y precio */
+  .vitrina__marco { aspect-ratio: 4 / 3; }
+  .vitrina__zapato { inset: 14% 6% 34%; }
+}
