@@ -1354,3 +1354,48 @@ svg.claro { filter: drop-shadow(0 0 0.8px oklch(0.2 0 0 / 0.55)) drop-shadow(0 0
 
 /* separa el grupo de categorías del grupo de tipos en la fila del catálogo */
 .pildora--cat + .pildora:not(.pildora--cat) { margin-left: 14px; }
+
+/* =========================================================
+   Paleta del letrero de la tienda (fachada en Pitalito, foto de perfil de Instagram):
+   letrero negro con letras doradas champaña. Reemplaza el vino en todo el sitio.
+   - negro: portada (como el letrero)
+   - champaña: fondos de acento con texto negro (9,7:1)
+   - bronce: texto e íconos de acento sobre blanco (6,3:1)
+   - rojo: solo para errores, siempre sobre blanco (6,5:1)
+   ========================================================= */
+:root {
+  --letrero: #121212;
+  --champana: #d8b48f;
+  --champana-claro: #f3dcc4;
+  --bronce: #7a5a3e;
+  --error: #b3261e;
+  --acento: var(--bronce);
+}
+
+/* portada: el letrero */
+.portada { background: var(--letrero); }
+.vitrina::before { background: var(--champana); }
+.portada__resumen li { border-color: var(--champana); color: var(--champana); }
+.portada .boton { background: var(--champana); border-color: var(--champana); color: var(--letrero); }
+.portada .boton:hover { background: var(--champana-claro); border-color: var(--champana-claro); }
+.portada .boton--claro { background: transparent; border-color: var(--blanco); color: var(--blanco); }
+.portada .boton--claro:hover { background: var(--blanco); border-color: var(--blanco); color: var(--letrero); }
+
+/* cinta: franja champaña con texto negro (separa la portada negra del resto) */
+.cinta { background: var(--champana); color: var(--letrero); }
+.cinta__pista span::after { background: var(--letrero); }
+
+/* sellos "Nuevo" y "-X%" */
+.sello { background: var(--champana); color: var(--letrero); }
+
+/* pedido rápido: banda champaña */
+.pedido { background: var(--champana); color: var(--letrero); }
+.pedido :focus-visible { outline-color: var(--letrero); }
+.pedido .campo label, .pedido .campo__opcional { color: var(--letrero); }
+.pedido .pedido__enviar { background: var(--wa); border-color: var(--wa); color: var(--blanco); }
+.pedido .pedido__enviar:hover { background: var(--wa-hondo); border-color: var(--wa-hondo); }
+.pedido .pedido__error { background: var(--blanco); color: var(--error); }
+
+/* errores en rojo, no en el color de marca */
+.campo input[aria-invalid="true"] { border-color: var(--error); }
+.pedido__error, .ficha__aviso { color: var(--error); }
