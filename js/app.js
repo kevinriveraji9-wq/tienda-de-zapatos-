@@ -219,6 +219,75 @@
       </a></li>`;
   }).join("");
 
+  /* ---------- Vitrina de la portada (teléfono y tableta): un destacado por categoría ---------- */
+  // Se elige un modelo distinto al del mosaico: el segundo "nuevo" de la categoría, o el segundo de la lista
+  const destacados = CATEGORIAS.map((c) => {
+    const ps = deCat(c.id);
+    const nuevosCat = ps.filter((p) => p.nuevo);
+    return nuevosCat[1] || ps.find((p) => p !== (nuevosCat[0] || ps[0])) || ps[0];
+  }).filter(Boolean);
+  const vitrina = $("#vitrina");
+  if (!destacados.length) vitrina.hidden = true;
+  $("#vitrinaMarco").innerHTML = destacados.map((p, i) => `
+    <button type="button" class="vitrina__slide${i === 0 ? " activa" : ""}" data-abrir="${p.id}"
+      aria-label="${esc(p.nombre)}, ${nombreCat(p.categoria)}, ${pesos(p.precio)}. Ver detalles" ${i === 0 ? "" : 'tabindex="-1" aria-hidden="true"'}>
+      <span class="vitrina__cat">${nombreCat(p.categoria)}</span>
+      <span class="vitrina__zapato">${dibujo(p, true)}</span>
+      <span class="vitrina__etiqueta"><b>${esc(p.nombre)}</b><span>${pesos(p.precio)}</span></span>
+    </button>`).join("");
+  $("#vitrinaPuntos").innerHTML = destacados.map((p, i) =>
+    `<button type="button" class="vitrina__punto" data-vitrina="${i}" aria-pressed="${i === 0}"><span class="oculto">${nombreCat(p.categoria)}: ${esc(p.nombre)}</span></button>`).join("");
+
+  let vActual = 0, vPausa = false, vTimer = null;
+  function irVitrina(n, desdeUsuario = false) {
+    const slides = $$(".vitrina__slide", vitrina);
+    const total = slides.length;
+    const sig = ((n % total) + total) % total;
+    if (sig === vActual) return;
+    const dir = (n > vActual || (vActual === total - 1 && sig === 0)) ? 1 : -1;
+    slides[vActual].classList.remove("activa");
+    slides[vActual].setAttribute("aria-hidden", "true");
+    slides[vActual].tabIndex = -1;
+    const nueva = slides[sig];
+    nueva.classList.add("activa");
+    nueva.removeAttribute("aria-hidden");
+    nueva.tabIndex = 0;
+    if (!reducido) {
+      $(".vitrina__zapato", nueva).animate(
+        [{ opacity: 0, transform: `translateX(${dir * 48}px) rotate(${dir * -8}deg)` }, { opacity: 1, transform: "none" }],
+        { duration: 650, easing: "cubic-bezier(0.16, 1, 0.3, 1)" });
+      $(".vitrina__etiqueta", nueva).animate([{ opacity: 0, transform: "translateY(10px)" }, { opacity: 1, transform: "none" }],
+        { duration: 450, delay: 120, easing: "cubic-bezier(0.16, 1, 0.3, 1)", fill: "backwards" });
+    }
+    $$(".vitrina__punto", vitrina).forEach((b, i) => b.setAttribute("aria-pressed", String(i === sig)));
+    vActual = sig;
+    if (desdeUsuario) reiniciarVitrina();
+  }
+  function reiniciarVitrina() {
+    clearInterval(vTimer);
+    // se turna solo si se permite el movimiento y la vitrina se ve (teléfono y tableta)
+    if (reducido || destacados.length < 2) return;
+    vTimer = setInterval(() => {
+      if (!vPausa && vitrina.offsetParent !== null && document.visibilityState === "visible") irVitrina(vActual + 1);
+    }, 4000);
+  }
+  vitrina.addEventListener("click", (e) => {
+    const punto = e.target.closest("[data-vitrina]");
+    if (punto) irVitrina(Number(punto.dataset.vitrina), true);
+  });
+  ["pointerenter", "focusin"].forEach((ev) => vitrina.addEventListener(ev, () => { vPausa = true; }));
+  ["pointerleave", "focusout"].forEach((ev) => vitrina.addEventListener(ev, () => { vPausa = false; }));
+  // deslizar con el dedo
+  let x0 = null;
+  vitrina.addEventListener("touchstart", (e) => { x0 = e.touches[0].clientX; vPausa = true; }, { passive: true });
+  vitrina.addEventListener("touchend", (e) => {
+    if (x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0;
+    x0 = null; vPausa = false;
+    if (Math.abs(dx) > 40) irVitrina(vActual + (dx < 0 ? 1 : -1), true);
+  });
+  reiniciarVitrina();
+
   const servicios = (TIENDA.servicios || []).filter((s) => s && s.titulo);
   const ICONOS_SERVICIO = ["iconoEnvio", "iconoCambio", "iconoPago", "iconoChat"];
   $("#servicios").innerHTML = servicios.map((s, i) =>
