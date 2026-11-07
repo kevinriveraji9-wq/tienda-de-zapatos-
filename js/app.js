@@ -221,7 +221,7 @@
       </a></li>`;
   }).join("");
 
-  /* ---------- Vitrina de la portada (teléfono y tableta): un destacado por categoría ---------- */
+  /* ---------- Vitrina de la portada: un destacado por categoría ---------- */
   // Se elige un modelo distinto al del mosaico: el segundo "nuevo" de la categoría, o el segundo de la lista
   const destacados = CATEGORIAS.map((c) => {
     const ps = deCat(c.id);
@@ -267,7 +267,7 @@
   }
   function reiniciarVitrina() {
     clearInterval(vTimer);
-    // se turna solo si se permite el movimiento y la vitrina se ve (teléfono y tableta)
+    // se turna solo si se permite el movimiento y la vitrina está a la vista
     if (reducido || destacados.length < 2) return;
     vTimer = setInterval(() => {
       if (!vPausa && vitrina.offsetParent !== null && document.visibilityState === "visible") irVitrina(vActual + 1);
