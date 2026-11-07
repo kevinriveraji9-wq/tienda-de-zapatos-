@@ -188,8 +188,6 @@
 
   /* ---------- Contenido que sale de los datos (una sola vez) ---------- */
   const [T_MIN, T_MAX] = extremos(PRODUCTOS);
-  $("#datoModelos").textContent = `${PRODUCTOS.length} modelos con precio`;
-  $("#datoTallas").textContent = `de la talla ${T_MIN} a la ${T_MAX}`;
   $("#portadaResumen").innerHTML = [`${PRODUCTOS.length} modelos`, `Tallas ${T_MIN} a ${T_MAX}`, "Pide por WhatsApp"]
     .map((t) => `<li>${t}</li>`).join("");
   $("#anio").textContent = new Date().getFullYear();
@@ -520,7 +518,7 @@
     $("#filtrosHoja").innerHTML = filtros;
     // en tableta y teléfono la categoría se cambia desde aquí (la barra lateral no se ve)
     const cats = buscando() ? "" : [TODAS, ...CATEGORIAS.map((c) => c.id)].map((id) =>
-      `<button type="button" class="pildora pildora--cat" data-cat="${id}" aria-pressed="${id === estado.cat}">${id === TODAS ? "Todo" : nombreCat(id)}</button>`).join("");
+      `<button type="button" class="pildora pildora--cat" data-cat="${id}" aria-pressed="${id === estado.cat}">${id === TODAS ? "Todas" : nombreCat(id)}</button>`).join("");
     $("#pildoras").innerHTML = cats + opcionesTipo().map(([t]) =>
       `<button type="button" class="pildora" data-tipo="${t}" aria-pressed="${t === estado.tipo}">${t}</button>`).join("");
   }

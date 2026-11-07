@@ -47,3 +47,7 @@ No test runner. Manual or scripted browser checks at 1440 / 768 / 390 for the fl
 - Scroll reveals are only for sequences (how-to steps, carousel cards, service items), never whole sections.
 - Easing `--expo` (cubic-bezier(0.16, 1, 0.3, 1)); feedback 150-300 ms, entrances 500-900 ms; no bounce.
 - The marquee duplicates its items for a seamless loop only when motion is allowed; with reduced motion it renders once and stays still.
+
+## Same version on every device (rule from the developer, 2026-11-07)
+
+Phone, tablet and desktop show the same content and the same features. Media queries may only change layout and presentation (columns, order, sizes, a menu or filters opening in a drawer/sheet, the search field collapsing into an icon). Never hide a section, sentence, button or feature at one size only. Before committing, check with a script that the same elements are visible at 375, 768 and 1440 px.
