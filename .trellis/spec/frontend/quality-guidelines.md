@@ -38,8 +38,12 @@ Never publish unconfirmed specifics: shipping thresholds or prices, "a todo Colo
 
 No test runner. Manual or scripted browser checks at 1440 / 768 / 390 for the flows listed in the index Quality Check.
 
-## Theme variants
 
-- `dorado.html` is `index.html` plus `css/tema-dorado.css` (black / gold / white). Any change to `index.html` must be copied to `dorado.html` (only differences: the extra stylesheet link, the title suffix "· Versión dorada" and `theme-color`).
-- Themes override tokens only (`--tinta`, `--acento`, `--wa`, `--wa-hondo`, `--pie-texto`) plus the few rules where a surface flips to dark (aviso, cabecera, portada, servicios, pie) or text must turn black on gold (`.boton--wa`, `.boton-wa`, `.sello`, `.wa-flota__boton`). Never change layout in a theme file.
-- Gold text on white uses `--oro-hondo` (6.9:1); bright `--oro` only on black or as a background with black text.
+## Motion (task 11-07-diseno-animaciones)
+
+- Signature moment: hero title lines rise (`subir-linea`), category shoes walk in (`pisar`), wine block wipes in (`barrido`).
+- Entrance animations only run under `html.anima`, set by an inline script in `<head>` when the page is visible and `prefers-reduced-motion` is not `reduce`. Without it, content is static and visible.
+- Safety net: after 2.5 s `app.js` finishes any stalled entrance animation (`ENTRADAS` set); scroll reveals (WAAPI) finish themselves after their duration + 800 ms. Never ship a reveal that can leave content hidden.
+- Scroll reveals are only for sequences (how-to steps, carousel cards, service items), never whole sections.
+- Easing `--expo` (cubic-bezier(0.16, 1, 0.3, 1)); feedback 150-300 ms, entrances 500-900 ms; no bounce.
+- The marquee duplicates its items for a seamless loop only when motion is allowed; with reduced motion it renders once and stays still.
