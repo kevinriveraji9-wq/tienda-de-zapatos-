@@ -1289,21 +1289,6 @@ svg.claro { filter: drop-shadow(0 0 0.8px oklch(0.2 0 0 / 0.55)) drop-shadow(0 0
   .vitrina__etiqueta { max-width: calc(100% - 150px); padding: 8px 12px; }
   .portada__titulo { font-size: clamp(2.5rem, 11.5vw, 3.25rem); }
   .portada__frase { font-size: 1rem; margin-top: 14px; }
-  .mosaico {
-    grid-template-columns: none;
-    grid-auto-flow: column;
-    grid-auto-columns: 42%;
-    gap: 8px;
-    margin-right: -16px;
-    padding-right: 16px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-  }
-  .mosaico::-webkit-scrollbar { display: none; }
-  .mosaico li { scroll-snap-align: start; }
-  .mosaico__tile { padding: 10px 12px 12px; }
-  .mosaico__nombre { font-size: 1.0625rem; margin-top: 4px; }
 }
 
 /* =========================================================
@@ -1386,3 +1371,40 @@ svg.claro { filter: drop-shadow(0 0 0.8px oklch(0.2 0 0 / 0.55)) drop-shadow(0 0
 .vitrina:has(.vitrina__slide--foto.activa) .vitrina__punto::before { background: oklch(1 0 0 / 0.55); }
 .vitrina:has(.vitrina__slide--foto.activa) .vitrina__punto[aria-pressed="true"]::before { background: var(--blanco); }
 @media (prefers-reduced-motion: reduce) { .vitrina__slide--foto img { transition: none; } }
+
+/* =========================================================
+   Categorías de la portada: accesos compactos (nombre, cantidad y flecha).
+   La vitrina ya muestra la foto de cada categoría, así que aquí no se repite
+   el dibujo. Iguales en todos los dispositivos: 4 en fila, 2 x 2 en el teléfono.
+   ========================================================= */
+.portada__subtitulo { font-size: 0.875rem; letter-spacing: 0.08em; color: oklch(1 0 0 / 0.7); margin-bottom: 10px; }
+.mosaico { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.mosaico__tile {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 12px;
+  row-gap: 2px;
+  padding: 14px 16px;
+  background: transparent;
+  border: 1px solid oklch(1 0 0 / 0.22);
+  color: var(--blanco);
+  transition: border-color 0.2s, background-color 0.2s;
+}
+.mosaico__tile:hover, .mosaico__tile:focus-visible { background: oklch(1 0 0 / 0.06); border-color: var(--champana); }
+.mosaico__tile::after { height: 3px; background: var(--champana); }
+.mosaico__nombre { grid-column: 1; margin: 0; font-size: clamp(1.0625rem, 0.95rem + 0.4vw, 1.375rem); }
+.mosaico__nombre::after { content: none; }
+.mosaico__n { grid-column: 1; color: oklch(1 0 0 / 0.68); }
+.mosaico__flecha {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  width: 22px;
+  height: 22px;
+  fill: var(--champana);
+  transition: transform 0.3s var(--expo);
+}
+.mosaico__tile:hover .mosaico__flecha, .mosaico__tile:focus-visible .mosaico__flecha { transform: translateX(4px); }
+@media (max-width: 759px) {
+  .mosaico { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mosaico__tile { padding: 12px 14px; }
+}

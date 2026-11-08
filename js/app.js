@@ -208,16 +208,13 @@
     </li>`).join("") +
     `<li class="nav__item"><a class="nav__enlace" href="#nuevos" data-ir="${TODAS}" data-ir-tipo="Nuevos">Nuevos</a></li>`;
 
-  $("#mosaico").innerHTML = CATEGORIAS.map((c) => {
-    const ps = deCat(c.id);
-    const muestra = ps.find((p) => p.nuevo) || ps[0];
-    return `
+  // accesos compactos por categoría (la vitrina ya muestra la foto de cada una)
+  $("#mosaico").innerHTML = CATEGORIAS.map((c) => `
       <li><a class="mosaico__tile" href="#${c.id}" data-ir="${c.id}">
-        <span class="mosaico__foto">${dibujo(muestra, true)}</span>
         <span class="mosaico__nombre">${c.nombre}</span>
-        <span class="mosaico__n">${plural(ps.length, "modelo", "modelos")}</span>
-      </a></li>`;
-  }).join("");
+        <span class="mosaico__n">${plural(deCat(c.id).length, "modelo", "modelos")}</span>
+        <svg class="mosaico__flecha" viewBox="0 0 24 24" aria-hidden="true"><use href="#iconoFlecha"/></svg>
+      </a></li>`).join("");
 
   /* ---------- Vitrina de la portada: una foto por categoría que se turna ---------- */
   // Cada diapositiva lleva a su categoría. Con foto (CATEGORIAS[].foto) se muestra la foto;
