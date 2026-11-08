@@ -219,24 +219,31 @@
       </a></li>`;
   }).join("");
 
-  /* ---------- Vitrina de la portada: un destacado por categoría ---------- */
-  // Se elige un modelo distinto al del mosaico: el segundo "nuevo" de la categoría, o el segundo de la lista
+  /* ---------- Vitrina de la portada: una foto por categoría que se turna ---------- */
+  // Cada diapositiva lleva a su categoría. Con foto (CATEGORIAS[].foto) se muestra la foto;
+  // sin foto, el dibujo de un modelo de esa categoría.
+  const fotoSrc = (url, w) => (/^https:\/\/images\.unsplash\.com\//.test(url) ? `${url}?w=${w}&q=70&auto=format&fit=crop` : url);
   const destacados = CATEGORIAS.map((c) => {
     const ps = deCat(c.id);
     const nuevosCat = ps.filter((p) => p.nuevo);
-    return nuevosCat[1] || ps.find((p) => p !== (nuevosCat[0] || ps[0])) || ps[0];
-  }).filter(Boolean);
+    return { c, n: ps.length, muestra: nuevosCat[1] || ps.find((p) => p !== (nuevosCat[0] || ps[0])) || ps[0] };
+  }).filter((d) => d.n);
   const vitrina = $("#vitrina");
   if (!destacados.length) vitrina.hidden = true;
-  $("#vitrinaMarco").innerHTML = destacados.map((p, i) => `
-    <button type="button" class="vitrina__slide${i === 0 ? " activa" : ""}" data-abrir="${p.id}"
-      aria-label="${esc(p.nombre)}, ${nombreCat(p.categoria)}, ${pesos(p.precio)}. Ver detalles" ${i === 0 ? "" : 'tabindex="-1" aria-hidden="true"'}>
-      <span class="vitrina__cat">${nombreCat(p.categoria)}</span>
-      <span class="vitrina__zapato">${dibujo(p, true)}</span>
-      <span class="vitrina__etiqueta"><b>${esc(p.nombre)}</b><span>${pesos(p.precio)}</span></span>
-    </button>`).join("");
-  $("#vitrinaPuntos").innerHTML = destacados.map((p, i) =>
-    `<button type="button" class="vitrina__punto" data-vitrina="${i}" aria-pressed="${i === 0}"><span class="oculto">${nombreCat(p.categoria)}: ${esc(p.nombre)}</span></button>`).join("");
+  $("#vitrinaMarco").innerHTML = destacados.map(({ c, n, muestra }, i) => {
+    const foto = c.foto
+      ? `<img src="${fotoSrc(c.foto, 1000)}" srcset="${[600, 1000, 1400].map((w) => `${fotoSrc(c.foto, w)} ${w}w`).join(", ")}"
+          sizes="(min-width: 1100px) 50vw, 100vw" alt="" fetchpriority="${i === 0 ? "high" : "low"}" decoding="async">`
+      : dibujo(muestra, true);
+    return `
+    <a class="vitrina__slide${i === 0 ? " activa" : ""}${c.foto ? " vitrina__slide--foto" : ""}" href="#${c.id}" data-ir="${c.id}"
+      aria-label="${c.nombre}: ver ${plural(n, "modelo", "modelos")}" ${i === 0 ? "" : 'tabindex="-1" aria-hidden="true"'}>
+      <span class="vitrina__zapato">${foto}</span>
+      <span class="vitrina__etiqueta"><b>${c.nombre}</b><span>${plural(n, "modelo", "modelos")} <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#iconoFlecha"/></svg></span></span>
+    </a>`;
+  }).join("");
+  $("#vitrinaPuntos").innerHTML = destacados.map(({ c }, i) =>
+    `<button type="button" class="vitrina__punto" data-vitrina="${i}" aria-pressed="${i === 0}"><span class="oculto">Ver ${c.nombre}</span></button>`).join("");
 
   let vActual = 0, vPausa = false, vTimer = null;
   function irVitrina(n, desdeUsuario = false) {
@@ -253,9 +260,11 @@
     nueva.removeAttribute("aria-hidden");
     nueva.tabIndex = 0;
     if (!reducido) {
-      $(".vitrina__zapato", nueva).animate(
-        [{ opacity: 0, transform: `translateX(${dir * 48}px) rotate(${dir * -8}deg)` }, { opacity: 1, transform: "none" }],
-        { duration: 650, easing: "cubic-bezier(0.16, 1, 0.3, 1)" });
+      const conFoto = nueva.classList.contains("vitrina__slide--foto");
+      $(".vitrina__zapato", nueva).animate(conFoto
+        ? [{ opacity: 0.4, transform: `scale(1.08) translateX(${dir * 16}px)` }, { opacity: 1, transform: "none" }]
+        : [{ opacity: 0, transform: `translateX(${dir * 48}px) rotate(${dir * -8}deg)` }, { opacity: 1, transform: "none" }],
+        { duration: conFoto ? 900 : 650, easing: "cubic-bezier(0.16, 1, 0.3, 1)" });
       $(".vitrina__etiqueta", nueva).animate([{ opacity: 0, transform: "translateY(10px)" }, { opacity: 1, transform: "none" }],
         { duration: 450, delay: 120, easing: "cubic-bezier(0.16, 1, 0.3, 1)", fill: "backwards" });
     }
@@ -367,39 +376,6 @@
     $$(".pasos li, .riel .tarjeta, .servicios__lista li").forEach((el) => {
       if (el.getBoundingClientRect().top > innerHeight) io.observe(el);
     });
-  }
-
-  /* ---------- Barra de avisos: se turnan, con pausa; quietos si se reduce el movimiento ---------- */
-  const avisos = (Array.isArray(TIENDA.anuncios) ? TIENDA.anuncios : [TIENDA.anuncio]).filter(Boolean).slice(0, 3);
-  const avisoTexto = $("#avisoTexto");
-  if (!avisos.length) $("#aviso").hidden = true;
-  else {
-    avisoTexto.textContent = avisos[0];
-    if (avisos.length > 1 && !reducido) {
-      const pausa = $("#avisoPausa");
-      let i = 0, pausado = false, encima = false;
-      pausa.hidden = false;
-      pausa.addEventListener("click", () => {
-        pausado = !pausado;
-        pausa.setAttribute("aria-pressed", String(pausado));
-        $(".oculto", pausa).textContent = pausado ? "Reanudar avisos" : "Pausar avisos";
-        $("path", pausa).setAttribute("d", pausado ? "M8 5v14l11-7z" : "M8 6h3v12H8zM13 6h3v12h-3z");
-      });
-      const aviso = $("#aviso");
-      aviso.addEventListener("mouseenter", () => { encima = true; });
-      aviso.addEventListener("mouseleave", () => { encima = false; });
-      setInterval(() => {
-        if (pausado || encima || document.hidden) return;
-        i = (i + 1) % avisos.length;
-        const salida = avisoTexto.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 180, fill: "forwards" });
-        salida.onfinish = () => {
-          avisoTexto.textContent = avisos[i];
-          salida.cancel();
-          avisoTexto.animate([{ opacity: 0, transform: "translateY(6px)" }, { opacity: 1, transform: "none" }],
-            { duration: 260, easing: "cubic-bezier(0.22, 1, 0.36, 1)" });
-        };
-      }, 5000);
-    }
   }
 
   /* ---------- Pintar el catálogo ---------- */

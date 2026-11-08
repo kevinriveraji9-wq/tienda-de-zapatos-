@@ -38,14 +38,6 @@ const TIENDA = {
   horario: "",     // Ej: "Lunes a sábado, 8:00 a. m. a 7:00 p. m."
   nit: "",         // Ej: "000.000.000-0"
 
-  // Barra de avisos arriba de la página (hasta 3 mensajes que se turnan).
-  // También se acepta un solo texto en "anuncio".
-  anuncios: [
-    "Pide por WhatsApp y te confirmamos talla y color",
-    "¿No encuentras tu talla? Escríbenos y te ayudamos",
-    "Precios en pesos colombianos, sujetos a disponibilidad",
-  ],
-
   // EDITAR: franja de servicio (4 puntos). Mientras no haya condiciones
   // confirmadas, los textos invitan a preguntar y no prometen nada.
   servicios: [
@@ -63,11 +55,15 @@ const TIENDA = {
   },
 };
 
+// "foto": imagen de la vitrina de la portada (una por categoría).
+// EDITAR: son fotos de referencia de Unsplash (licencia libre). Cámbialas por
+// fotos reales de la tienda, por ejemplo "img/portada-dama.jpg". Si se deja
+// vacía, la vitrina muestra el dibujo de un modelo de esa categoría.
 const CATEGORIAS = [
-  { id: "dama", nombre: "Dama" },
-  { id: "caballero", nombre: "Caballero" },
-  { id: "nino", nombre: "Niño" },
-  { id: "nina", nombre: "Niña" },
+  { id: "dama", nombre: "Dama", foto: "https://images.unsplash.com/photo-1535043934128-cf0b28d52f95" },
+  { id: "caballero", nombre: "Caballero", foto: "https://images.unsplash.com/photo-1603191659812-ee978eeeef76" },
+  { id: "nino", nombre: "Niño", foto: "https://images.unsplash.com/photo-1742390671657-c8738e123962" },
+  { id: "nina", nombre: "Niña", foto: "https://images.unsplash.com/photo-1742390671609-9811019fe538" },
 ];
 
 const PRODUCTOS = [
