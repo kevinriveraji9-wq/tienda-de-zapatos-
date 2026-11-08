@@ -153,34 +153,6 @@ p { text-wrap: pretty; }
 }
 .icono svg { width: 24px; height: 24px; fill: currentColor; }
 
-/* ---------- Barra de avisos ---------- */
-.aviso {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  padding: 0 56px;
-  background: var(--tinta);
-  color: var(--blanco);
-  font-size: var(--paso-chico);
-  font-weight: 600;
-  text-align: center;
-}
-.aviso :focus-visible { outline-color: var(--blanco); outline-offset: -4px; }
-.aviso__pausa {
-  position: absolute;
-  right: max(4px, calc(var(--margen) - 12px));
-  top: 0;
-  display: grid;
-  place-items: center;
-  width: 44px; height: 44px;
-  border: 0;
-  background: none;
-  color: var(--blanco);
-}
-.aviso__pausa svg { width: 18px; height: 18px; fill: currentColor; }
-
 /* ---------- Cabecera ---------- */
 .cabecera {
   position: sticky;
@@ -958,8 +930,6 @@ svg.claro { filter: drop-shadow(0 0 0.8px oklch(0.2 0 0 / 0.55)) drop-shadow(0 0
 /* categorías en las pastillas del catálogo: iguales en todos los dispositivos */
 .pildora--cat { font-stretch: 87.5%; text-transform: uppercase; }
 .pildora--cat[aria-pressed="true"] + .pildora:not(.pildora--cat) { margin-left: 0; }
-/* barra de avisos: aire arriba y abajo cuando el texto ocupa dos líneas */
-.aviso { padding-block: 6px; }
 
 /* ficha: confianza junto al botón de pedir, enlaces de ayuda y aviso de enlace copiado */
 .ficha__confianza { margin-top: -4px; color: var(--tinta-suave); font-size: var(--paso-chico); }
@@ -1389,3 +1359,30 @@ svg.claro { filter: drop-shadow(0 0 0.8px oklch(0.2 0 0 / 0.55)) drop-shadow(0 0
 /* errores en rojo, no en el color de marca */
 .campo input[aria-invalid="true"] { border-color: var(--error); }
 .pedido__error, .ficha__aviso { color: var(--error); }
+
+/* =========================================================
+   Vitrina con fotos: una foto por categoría a sangre dentro del marco.
+   La etiqueta blanca lleva el nombre de la categoría y cuántos modelos hay.
+   ========================================================= */
+.vitrina__slide { text-decoration: none; }
+.vitrina__slide--foto .vitrina__zapato { inset: 0; overflow: hidden; }
+.vitrina__slide--foto img { width: 100%; height: 100%; object-fit: cover; }
+.vitrina__slide--foto::after { /* sombra suave abajo para que los puntos se lean sobre la foto */
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 30%;
+  background: linear-gradient(to top, oklch(0 0 0 / 0.35), transparent);
+  pointer-events: none;
+}
+.vitrina__slide--foto:hover img { transform: scale(1.03); }
+.vitrina__slide--foto img { transition: transform 0.8s var(--expo); }
+.vitrina__etiqueta { z-index: 1; }
+.vitrina__etiqueta span { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-stretch: 100%; font-size: 0.9375rem; color: var(--bronce); }
+.vitrina__etiqueta span svg { width: 16px; height: 16px; fill: currentColor; transition: transform 0.3s var(--expo); }
+.vitrina__slide:hover .vitrina__etiqueta span svg { transform: translateX(4px); }
+.vitrina__etiqueta b { font-size: clamp(1.25rem, 1rem + 0.8vw, 1.75rem); font-weight: 800; text-transform: uppercase; line-height: 1; }
+.vitrina__puntos { z-index: 2; }
+.vitrina:has(.vitrina__slide--foto.activa) .vitrina__punto::before { background: oklch(1 0 0 / 0.55); }
+.vitrina:has(.vitrina__slide--foto.activa) .vitrina__punto[aria-pressed="true"]::before { background: var(--blanco); }
+@media (prefers-reduced-motion: reduce) { .vitrina__slide--foto img { transition: none; } }

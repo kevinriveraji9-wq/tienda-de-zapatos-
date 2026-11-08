@@ -7,23 +7,15 @@
   <meta name="description" content="Catálogo de Calzado Leidy Carolina en Pitalito, Huila: 80 modelos para dama, caballero, niño y niña, con precio. Elige tu talla y pide por WhatsApp.">
   <meta name="theme-color" content="#121212">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23222'/%3E%3Cpath d='M9 7h4v14h8v4H9z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://images.unsplash.com">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/estilos.css?v=20">
+  <link rel="stylesheet" href="css/estilos.css?v=21">
   <script>/* la entrada animada solo corre si la página se está viendo y no se pidió reducir el movimiento */if(matchMedia('(prefers-reduced-motion: no-preference)').matches&&document.visibilityState==='visible')document.documentElement.classList.add('anima')</script>
 </head>
 <body>
   <a class="saltar" href="#catalogo">Saltar al catálogo</a>
-
-  <!-- BARRA DE AVISOS (TIENDA.anuncios) -->
-  <div class="aviso" id="aviso" role="region" aria-label="Avisos de la tienda">
-    <p class="aviso__texto" id="avisoTexto">Pide por WhatsApp y te confirmamos talla y color</p>
-    <button type="button" class="aviso__pausa" id="avisoPausa" aria-pressed="false" hidden>
-      <span class="oculto">Pausar avisos</span>
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h3v12H8zM13 6h3v12h-3z"/></svg>
-    </button>
-  </div>
 
   <!-- CABECERA -->
   <header class="cabecera" id="inicio">
@@ -66,7 +58,7 @@
   <main>
     <!-- PORTADA: sin fotografía, con accesos por categoría -->
     <section class="portada" aria-labelledby="portadaTitulo">
-      <!-- VITRINA: un destacado por categoría que se turna -->
+      <!-- VITRINA: una foto por categoría que se turna (CATEGORIAS[].foto) -->
       <div class="vitrina" id="vitrina" role="region" aria-roledescription="carrusel" aria-label="Destacados">
         <div class="vitrina__marco" id="vitrinaMarco" aria-live="off"></div>
         <div class="vitrina__puntos" id="vitrinaPuntos" role="group" aria-label="Elegir destacado"></div>
@@ -290,7 +282,7 @@
     <symbol id="iconoFlecha" viewBox="0 0 24 24"><path fill="currentColor" d="m9 5 7 7-7 7-1.4-1.4 5.6-5.6-5.6-5.6z"/></symbol>
   </svg>
 
-  <script src="js/productos.js?v=20"></script>
-  <script src="js/app.js?v=20"></script>
+  <script src="js/productos.js?v=21"></script>
+  <script src="js/app.js?v=21"></script>
 </body>
 </html>
