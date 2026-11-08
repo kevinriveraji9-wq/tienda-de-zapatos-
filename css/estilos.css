@@ -315,7 +315,6 @@ p { text-wrap: pretty; }
   font-size: var(--paso-guia);
   line-height: 1.45;
 }
-.portada__acciones { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
 .portada__subtitulo { font-size: var(--paso-guia); margin-bottom: 16px; }
 
 .mosaico { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
@@ -911,7 +910,6 @@ p { text-wrap: pretty; }
   .cabecera__wa-texto { /* taste-skill-ignore: el texto queda para lectores de pantalla */
     position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
   }
-  .portada__acciones .boton { flex: 1 1 auto; }
   .mosaico { gap: 8px; }
   .mosaico__tile { padding: 12px 14px 16px; }
   .servicios__lista { gap: 16px 20px; }
@@ -1026,7 +1024,6 @@ svg.claro { filter: drop-shadow(0 0 0.8px oklch(0.2 0 0 / 0.55)) drop-shadow(0 0
 @media (prefers-reduced-motion: no-preference) {
   .anima .portada__titulo .linea > span { animation: subir-linea 0.9s var(--expo) both; animation-delay: calc(var(--n, 0) * 110ms + 80ms); }
   .anima .portada__frase { animation: aparecer 0.8s var(--expo) 0.35s both; }
-  .anima .portada__acciones { animation: aparecer 0.8s var(--expo) 0.45s both; }
   .anima .portada__subtitulo { animation: fundido 0.6s 0.4s both; }
   .anima .portada__cats::before { animation: barrido 1s var(--expo) 0.2s both; }
   .anima .mosaico li { animation: aparecer 0.7s var(--expo) both; }
@@ -1173,7 +1170,7 @@ svg.claro { filter: drop-shadow(0 0 0.8px oklch(0.2 0 0 / 0.55)) drop-shadow(0 0
 
 /* =========================================================
    Portada única (computador, tableta y teléfono)
-   Escenario vino de borde a borde: título blanco, etiquetas, botones claros,
+   Escenario negro de borde a borde: línea dorada con datos, título blanco, frase,
    vitrina con un zapato destacado por categoría y las categorías debajo.
    Computador: texto | vitrina, categorías en fila. Tableta y teléfono: apilado.
    ========================================================= */
@@ -1195,24 +1192,27 @@ svg.claro { filter: drop-shadow(0 0 0.8px oklch(0.2 0 0 / 0.55)) drop-shadow(0 0
 .portada__resumen {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin: 20px 0 0;
+  align-items: center;
+  margin: 0 0 clamp(14px, 1.6vw, 22px);
   padding: 0;
   list-style: none;
-}
-.portada__resumen li {
-  padding: 6px 10px;
-  border: 1px solid oklch(1 0 0 / 0.55);
-  font-size: 0.875rem;
+  color: var(--champana);
+  font-size: 0.8125rem;
   font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   line-height: 1.2;
 }
-
-/* botones claros sobre el vino */
-.portada .boton { background: var(--blanco); border-color: var(--blanco); color: var(--tinta); }
-.portada .boton:hover { background: var(--gris); border-color: var(--gris); }
-.portada .boton--claro { background: transparent; border-color: var(--blanco); color: var(--blanco); }
-.portada .boton--claro:hover { background: var(--blanco); color: var(--tinta); }
+.portada__resumen::before { content: ""; width: 28px; height: 2px; margin-right: 12px; background: currentColor; }
+.portada__resumen li + li::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  margin: 0 10px;
+  vertical-align: middle;
+  background: currentColor;
+}
 
 /* categorías debajo: cuatro en fila (en el teléfono, fila deslizable) */
 .portada__subtitulo { color: var(--blanco); margin-bottom: 12px; }
@@ -1299,10 +1299,7 @@ svg.claro { filter: drop-shadow(0 0 0.8px oklch(0.2 0 0 / 0.55)) drop-shadow(0 0
 @media (prefers-reduced-motion: no-preference) {
   .anima .vitrina { animation: aparecer 0.8s var(--expo) 0.15s both; }
   .anima .vitrina::before { animation: barrido 1s var(--expo) 0.3s both; }
-  .anima .portada__resumen li { animation: aparecer 0.6s var(--expo) both; }
-  .anima .portada__resumen li:nth-child(1) { animation-delay: 0.35s; }
-  .anima .portada__resumen li:nth-child(2) { animation-delay: 0.42s; }
-  .anima .portada__resumen li:nth-child(3) { animation-delay: 0.49s; }
+  .anima .portada__resumen { animation: fundido 0.6s 0.05s both; }
 }
 
 /* ---------- Tableta: apilado, vitrina ancha ---------- */
@@ -1322,8 +1319,6 @@ svg.claro { filter: drop-shadow(0 0 0.8px oklch(0.2 0 0 / 0.55)) drop-shadow(0 0
   .vitrina__etiqueta { max-width: calc(100% - 150px); padding: 8px 12px; }
   .portada__titulo { font-size: clamp(2.5rem, 11.5vw, 3.25rem); }
   .portada__frase { font-size: 1rem; margin-top: 14px; }
-  .portada__resumen { margin-top: 16px; }
-  .portada__acciones { margin-top: 22px; gap: 10px; }
   .mosaico {
     grid-template-columns: none;
     grid-auto-flow: column;
@@ -1359,14 +1354,14 @@ svg.claro { filter: drop-shadow(0 0 0.8px oklch(0.2 0 0 / 0.55)) drop-shadow(0 0
    Paleta del letrero de la tienda (fachada en Pitalito, foto de perfil de Instagram):
    letrero negro con letras doradas champaña. Reemplaza el vino en todo el sitio.
    - negro: portada (como el letrero)
-   - champaña: fondos de acento con texto negro (9,7:1)
+   - dorado: fondos de acento con texto negro (7,9:1)
    - bronce: texto e íconos de acento sobre blanco (6,3:1)
    - rojo: solo para errores, siempre sobre blanco (6,5:1)
    ========================================================= */
 :root {
   --letrero: #121212;
-  --champana: #d8b48f;
-  --champana-claro: #f3dcc4;
+  --champana: #cfa064;
+  --champana-claro: #e2bd86;
   --bronce: #7a5a3e;
   --error: #b3261e;
   --acento: var(--bronce);
@@ -1375,11 +1370,6 @@ svg.claro { filter: drop-shadow(0 0 0.8px oklch(0.2 0 0 / 0.55)) drop-shadow(0 0
 /* portada: el letrero */
 .portada { background: var(--letrero); }
 .vitrina::before { background: var(--champana); }
-.portada__resumen li { border-color: var(--champana); color: var(--champana); }
-.portada .boton { background: var(--champana); border-color: var(--champana); color: var(--letrero); }
-.portada .boton:hover { background: var(--champana-claro); border-color: var(--champana-claro); }
-.portada .boton--claro { background: transparent; border-color: var(--blanco); color: var(--blanco); }
-.portada .boton--claro:hover { background: var(--blanco); border-color: var(--blanco); color: var(--letrero); }
 
 /* cinta: franja champaña con texto negro (separa la portada negra del resto) */
 .cinta { background: var(--champana); color: var(--letrero); }

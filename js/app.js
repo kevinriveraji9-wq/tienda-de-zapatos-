@@ -188,7 +188,7 @@
 
   /* ---------- Contenido que sale de los datos (una sola vez) ---------- */
   const [T_MIN, T_MAX] = extremos(PRODUCTOS);
-  $("#portadaResumen").innerHTML = [`${PRODUCTOS.length} modelos`, `Tallas ${T_MIN} a ${T_MAX}`, "Pide por WhatsApp"]
+  $("#portadaResumen").innerHTML = [`${PRODUCTOS.length} modelos`, `Tallas ${T_MIN} a ${T_MAX}`]
     .map((t) => `<li>${t}</li>`).join("");
   $("#anio").textContent = new Date().getFullYear();
   $("#pieCiudad").textContent = TIENDA.ciudad;
